@@ -1,5 +1,4 @@
 import 'dart:convert';
-
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_vector_icons/flutter_vector_icons.dart';
@@ -46,7 +45,6 @@ class _RestaurantRegistrationState extends State<RestaurantRegistration> {
 
   List<dynamic> _placeList = [];
   List<dynamic> _selectedPlace = [];
-
   LatLng? _selectedLocation;
 
   void _onSearchChanged(String searchQuery) async {
@@ -120,8 +118,20 @@ class _RestaurantRegistrationState extends State<RestaurantRegistration> {
       _selectedLocation = newPosition;
     });
 
+    await _reverseGeocodeLocation(newPosition);
+  }
+
+  void _onMapTap(LatLng position) async {
+    setState(() {
+      _selectedLocation = position;
+    });
+
+    await _reverseGeocodeLocation(position);
+  }
+
+  Future<void> _reverseGeocodeLocation(LatLng position) async {
     final reverseGeocodeUrl = Uri.parse(
-        'https://maps.googleapis.com/maps/api/geocode/json?latlng=${newPosition.latitude},${newPosition.longitude}&key=$googleApiKey');
+        'https://maps.googleapis.com/maps/api/geocode/json?latlng=${position.latitude},${position.longitude}&key=$googleApiKey');
 
     final response = await http.get(reverseGeocodeUrl);
 
@@ -134,7 +144,7 @@ class _RestaurantRegistrationState extends State<RestaurantRegistration> {
       // Extracting the postal code
       String postalCode = "";
       final addressComponents =
-          responseBody['results'][0]['address_components'];
+      responseBody['results'][0]['address_components'];
       for (var component in addressComponents) {
         if (component['types'].contains('postal_code')) {
           postalCode = component['long_name'];
@@ -230,19 +240,20 @@ class _RestaurantRegistrationState extends State<RestaurantRegistration> {
                       zoom: 15.0,
                     ),
                     markers: _selectedLocation == null
-                        // ignore: prefer_collection_literals
+                    // ignore: prefer_collection_literals
                         ? Set.of([])
-                        // ignore: prefer_collection_literals
+                    // ignore: prefer_collection_literals
                         : Set.of([
-                            Marker(
-                              markerId: const MarkerId('Your Location'),
-                              position: _selectedLocation!,
-                              draggable: true,
-                              onDragEnd: (newPosition) {
-                                _onMarkerDragEnd(newPosition);
-                              },
-                            )
-                          ]),
+                      Marker(
+                        markerId: const MarkerId('Your Location'),
+                        position: _selectedLocation!,
+                        draggable: true,
+                        onDragEnd: (newPosition) {
+                          _onMarkerDragEnd(newPosition);
+                        },
+                      )
+                    ]),
+                    onTap: _onMapTap,
                   ),
                   Column(
                     children: [
@@ -259,27 +270,27 @@ class _RestaurantRegistrationState extends State<RestaurantRegistration> {
                       _placeList.isEmpty
                           ? const SizedBox.shrink()
                           : Expanded(
-                              child: ListView(
-                                children: List.generate(
-                                  _placeList.length,
-                                  (index) {
-                                    return Container(
-                                      color: Colors.white,
-                                      child: ListTile(
-                                        visualDensity: VisualDensity.compact,
-                                        title: Text(
-                                            _placeList[index]['description']),
-                                        onTap: () {
-                                          _getPlaceDetail(
-                                              _placeList[index]['place_id']);
-                                          _selectedPlace.add(_placeList[index]);
-                                        },
-                                      ),
-                                    );
+                        child: ListView(
+                          children: List.generate(
+                            _placeList.length,
+                                (index) {
+                              return Container(
+                                color: Colors.white,
+                                child: ListTile(
+                                  visualDensity: VisualDensity.compact,
+                                  title: Text(
+                                      _placeList[index]['description']),
+                                  onTap: () {
+                                    _getPlaceDetail(
+                                        _placeList[index]['place_id']);
+                                    _selectedPlace.add(_placeList[index]);
                                   },
                                 ),
-                              ),
-                            )
+                              );
+                            },
+                          ),
+                        ),
+                      )
                     ],
                   ),
                 ],
@@ -303,51 +314,55 @@ class _RestaurantRegistrationState extends State<RestaurantRegistration> {
                           imageUploader.pickImage("logo");
                         },
                         child: Container(
-                            height: 120.h,
-                            width: width / 2.2,
-                            decoration: BoxDecoration(
-                                borderRadius: BorderRadius.circular(10.r),
-                                border: Border.all(color: kGrayLight)),
-                            child: Obx(() => imageUploader.logoUrl == ""
-                                ? Center(
-                                    child: Text(
-                                      "Upload Logo",
-                                      style:
-                                          appStyle(16, kDark, FontWeight.w600),
-                                    ),
-                                  )
-                                : ClipRRect(
-                                    borderRadius: BorderRadius.circular(10.r),
-                                    child: Image.network(
-                                      imageUploader.logoUrl,
-                                      fit: BoxFit.cover,
-                                    )))),
+                          height: 120.h,
+                          width: width / 2.2,
+                          decoration: BoxDecoration(
+                              borderRadius: BorderRadius.circular(10.r),
+                              border: Border.all(color: kGrayLight)),
+                          child: Obx(() => imageUploader.logoUrl == ""
+                              ? Center(
+                            child: Text(
+                              "Upload Logo",
+                              style: appStyle(
+                                  16, kDark, FontWeight.w600),
+                            ),
+                          )
+                              : ClipRRect(
+                              borderRadius:
+                              BorderRadius.circular(10.r),
+                              child: Image.network(
+                                imageUploader.logoUrl,
+                                fit: BoxFit.cover,
+                              ))),
+                        ),
                       ),
                       GestureDetector(
                         onTap: () {
                           imageUploader.pickImage("cover");
                         },
                         child: Container(
-                            height: 120.h,
-                            width: width / 2.2,
-                            decoration: BoxDecoration(
-                                borderRadius: BorderRadius.circular(10.r),
-                                border: Border.all(color: kGrayLight)),
-                            // ignore: unrelated_type_equality_checks
-                            child: Obx(() => imageUploader.coverUrl == ""
-                                ? Center(
-                                    child: Text(
-                                      "Upload Cover",
-                                      style:
-                                          appStyle(16, kDark, FontWeight.w600),
-                                    ),
-                                  )
-                                : ClipRRect(
-                                    borderRadius: BorderRadius.circular(10.r),
-                                    child: Image.network(
-                                      imageUploader.coverUrl,
-                                      fit: BoxFit.cover,
-                                    )))),
+                          height: 120.h,
+                          width: width / 2.2,
+                          decoration: BoxDecoration(
+                              borderRadius: BorderRadius.circular(10.r),
+                              border: Border.all(color: kGrayLight)),
+                          // ignore: unrelated_type_equality_checks
+                          child: Obx(() => imageUploader.coverUrl == ""
+                              ? Center(
+                            child: Text(
+                              "Upload Cover",
+                              style: appStyle(
+                                  16, kDark, FontWeight.w600),
+                            ),
+                          )
+                              : ClipRRect(
+                              borderRadius:
+                              BorderRadius.circular(10.r),
+                              child: Image.network(
+                                imageUploader.coverUrl,
+                                fit: BoxFit.cover,
+                              ))),
+                        ),
                       ),
                     ],
                   ),
@@ -437,9 +452,10 @@ class _RestaurantRegistrationState extends State<RestaurantRegistration> {
                           ),
                         );
 
-                        String restaurant = restaurantRequestToJson(data);
-
-                        restaurantController.restaurantRegistration(restaurant);
+                        String restaurant =
+                        restaurantRequestToJson(data);
+                        restaurantController.restaurantRegistration(
+                            restaurant);
                       } else {
                         Get.snackbar("Registration Failed",
                             "Please fill all the fields and try again",

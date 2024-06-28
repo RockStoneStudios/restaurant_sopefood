@@ -1,5 +1,3 @@
-// ignore_for_file: unnecessary_null_comparison
-
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
@@ -17,6 +15,8 @@ import 'package:get/get.dart';
 import 'package:get_storage/get_storage.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
+import 'package:permission_handler/permission_handler.dart';
+import 'dialogs/location_permission_dialog.dart';
 
 Future<dynamic> myBackgroundMessageHandler(RemoteMessage message) async {
   print(
@@ -24,7 +24,7 @@ Future<dynamic> myBackgroundMessageHandler(RemoteMessage message) async {
 }
 
 final FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =
-    FlutterLocalNotificationsPlugin();
+FlutterLocalNotificationsPlugin();
 
 final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
 
@@ -83,7 +83,30 @@ class MyApp extends StatelessWidget {
               iconTheme: const IconThemeData(color: kDark),
               primarySwatch: Colors.grey,
             ),
-            home: defaultHome,
+            home: FutureBuilder<PermissionStatus>(
+              future: Permission.locationWhenInUse.status,
+              builder: (context, snapshot) {
+                if (snapshot.connectionState == ConnectionState.waiting) {
+                  return const SizedBox();
+                } else if (snapshot.hasData) {
+                  final permissionStatus = snapshot.data!;
+                  if (permissionStatus.isDenied) {
+                    return LocationPermissionDialog(
+                      onPermissionGranted: () {
+                        Navigator.pushReplacement(
+                          context,
+                          MaterialPageRoute(builder: (context) => defaultHome),
+                        );
+                      },
+                    );
+                  } else {
+                    return defaultHome;
+                  }
+                } else {
+                  return const SizedBox();
+                }
+              },
+            ),
             navigatorKey: navigatorKey,
             routes: {
               '/order_details_page': (context) => const NotificationOrderPage(),
