@@ -168,7 +168,7 @@ class _RestaurantRegistrationState extends State<RestaurantRegistration> {
       backgroundColor: Colors.white,
       appBar: AppBar(
         title: ReusableText(
-            text: "Restaurant Registration",
+            text: "Registro de Restaurante",
             style: appStyle(16, kDark, FontWeight.w600)),
         backgroundColor: Colors.white,
         elevation: 0,
@@ -311,7 +311,7 @@ class _RestaurantRegistrationState extends State<RestaurantRegistration> {
                             child: Obx(() => imageUploader.logoUrl == ""
                                 ? Center(
                                     child: Text(
-                                      "Upload Logo",
+                                      "Subir Logo",
                                       style:
                                           appStyle(16, kDark, FontWeight.w600),
                                     ),
@@ -337,7 +337,7 @@ class _RestaurantRegistrationState extends State<RestaurantRegistration> {
                             child: Obx(() => imageUploader.coverUrl == ""
                                 ? Center(
                                     child: Text(
-                                      "Upload Cover",
+                                      "Subir Cover",
                                       style:
                                           appStyle(16, kDark, FontWeight.w600),
                                     ),
@@ -355,7 +355,7 @@ class _RestaurantRegistrationState extends State<RestaurantRegistration> {
                     height: 20.h,
                   ),
                   EmailTextField(
-                    hintText: "Restaurant Title",
+                    hintText: "Titulo de Restaurante",
                     controller: _title,
                     prefixIcon: Icon(
                       Ionicons.fast_food_outline,
@@ -368,7 +368,7 @@ class _RestaurantRegistrationState extends State<RestaurantRegistration> {
                     height: 20.h,
                   ),
                   EmailTextField(
-                    hintText: "Business Hours (e.g 8:00am - 10:00pm)",
+                    hintText: "Horario (e.j 4:00pm - 10:30pm)",
                     controller: _time,
                     prefixIcon: Icon(
                       Ionicons.time_outline,
@@ -381,7 +381,7 @@ class _RestaurantRegistrationState extends State<RestaurantRegistration> {
                     height: 20.h,
                   ),
                   EmailTextField(
-                    hintText: "Postal Code",
+                    hintText: "Codigo Postal",
                     controller: _postalCodeRes,
                     prefixIcon: Icon(
                       Ionicons.locate_outline,
@@ -407,7 +407,7 @@ class _RestaurantRegistrationState extends State<RestaurantRegistration> {
                     height: 20.h,
                   ),
                   CustomButton(
-                    text: "S U B M I T",
+                    text: "E N V I A R",
                     btnHieght: 40.h,
                     onTap: () {
                       String owner = box.read("userId");
