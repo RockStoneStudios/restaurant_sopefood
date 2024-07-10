@@ -1,5 +1,4 @@
 import 'dart:convert';
-
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_vector_icons/flutter_vector_icons.dart';
@@ -46,7 +45,6 @@ class _RestaurantRegistrationState extends State<RestaurantRegistration> {
 
   List<dynamic> _placeList = [];
   List<dynamic> _selectedPlace = [];
-
   LatLng? _selectedLocation;
 
   void _onSearchChanged(String searchQuery) async {
@@ -120,8 +118,20 @@ class _RestaurantRegistrationState extends State<RestaurantRegistration> {
       _selectedLocation = newPosition;
     });
 
+    await _reverseGeocodeLocation(newPosition);
+  }
+
+  void _onMapTap(LatLng position) async {
+    setState(() {
+      _selectedLocation = position;
+    });
+
+    await _reverseGeocodeLocation(position);
+  }
+
+  Future<void> _reverseGeocodeLocation(LatLng position) async {
     final reverseGeocodeUrl = Uri.parse(
-        'https://maps.googleapis.com/maps/api/geocode/json?latlng=${newPosition.latitude},${newPosition.longitude}&key=$googleApiKey');
+        'https://maps.googleapis.com/maps/api/geocode/json?latlng=${position.latitude},${position.longitude}&key=$googleApiKey');
 
     final response = await http.get(reverseGeocodeUrl);
 
@@ -243,6 +253,7 @@ class _RestaurantRegistrationState extends State<RestaurantRegistration> {
                               },
                             )
                           ]),
+                    onTap: _onMapTap,
                   ),
                   Column(
                     children: [
@@ -438,7 +449,6 @@ class _RestaurantRegistrationState extends State<RestaurantRegistration> {
                         );
 
                         String restaurant = restaurantRequestToJson(data);
-
                         restaurantController.restaurantRegistration(restaurant);
                       } else {
                         Get.snackbar("Registration Failed",
